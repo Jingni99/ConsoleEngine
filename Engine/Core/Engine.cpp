@@ -1,5 +1,7 @@
 #include "Engine.h"
 #include<iostream>
+#include"Level/Level.h"
+
 
 //2가지 기능 추가
 // 윈도우즈
@@ -12,8 +14,11 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+    //
+    if (mainLevel) {
+        delete mainLevel;
+    }
 }
-
 void Engine::Run()
 {
     //시간계산함수
@@ -63,16 +68,47 @@ void Engine::Run()
         
         if (deltaTime >= oneFrameTime)
         {
-            Update(deltaTime);
+            BeginePlay();
+            Tick(deltaTime);
             Render();
 
             //시간 업데이트
             previousTime = currentTime;
+
+            //현재 프레임의 입력을 기록
+            for (int ix = 0; ix < 255; ++ix)
+            {
+                keyStates[ix].previouseKeyDown = keyStates[ix].isKeyDown;  
+            }
         }
 
 
     }
 
+}
+
+void Engine::AddLevel(Level* newLevel)
+{
+    //기존에 있던 레벨 제거
+    if (mainLevel) {
+        delete mainLevel;
+    }
+    mainLevel = newLevel;
+}
+
+bool Engine::GetKey(int keyCode)
+{
+    return keyStates[keyCode].isKeyDown;
+}
+
+bool Engine::GetKeyDown(int keyCode)
+{
+    return !keyStates[keyCode].previouseKeyDown && keyStates[keyCode].isKeyDown;  // true false && 연산
+}
+
+bool Engine::GetKeyUp(int keyCode)
+{
+    return keyStates[keyCode].previouseKeyDown && !keyStates[keyCode].isKeyDown;;
 }
 
 void Engine::Quit()
@@ -83,19 +119,66 @@ void Engine::Quit()
 
 void Engine::ProcessInput()
 {
-    //Esc 키 눌림 확인{
-    if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+    
+    //키 입력 확인
+    for(int ix =0 ; ix < 255; ++ix)
     {
-        //종료
-        Quit();
+        keyStates[ix].isKeyDown = GetAsyncKeyState(ix) & 0x8000;
     }
+
+    ////Esc 키 눌림 확인{
+    //if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+    //{
+    //    //종료
+    //    Quit();
+    //}
 }
 
-void Engine::Update(float deltaTime)
+
+
+void Engine::BeginePlay()
 {
-    std::cout << "DeltaTime:" << deltaTime << ",FPS: " <<(1.0f/deltaTime) << "\n";  // fps 는 순간 타임
+    if (mainLevel)
+    {
+        mainLevel->BeginPlay();
+    }
+
+}
+void Engine::Tick(float deltaTime)
+{
+    //std::cout << "DeltaTime:" << deltaTime << ",FPS: " <<(1.0f/deltaTime) << "\n";  // fps 는 순간 타임
+    
+    //if (GetKeyDown('A'))
+    //{
+    //    std::cout << "keyDown\n";
+    //}
+    //if (GetKey('A'))
+    //{
+    //    std::cout << "key\n";
+    //}
+    //if (GetKeyUp('A'))
+    //{
+    //    std::cout << "keyUp\n";
+    //}
+
+    //레벨 업데이트
+    if (mainLevel) 
+    {
+        mainLevel->Tick(deltaTime);
+     }
+
+
+    if(GetKeyDown(VK_ESCAPE))
+     {
+          Quit();
+     }
+
 }
 
 void Engine::Render() //콘솔에서는 렌더링이 std::cout 밖에 없음.goood
 {
+    if (mainLevel) 
+    {
+        mainLevel->Render();
+    }
 }
