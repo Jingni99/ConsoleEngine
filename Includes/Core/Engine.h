@@ -4,13 +4,9 @@
 #include<Windows.h>
 
 /*
-*Todo: 23일 할 것
-* 키 입력 관리(keySatate 배열)  - 완료
-* 입력 확인 함수(Getkey, Getkeydown, Getkeyup)  - 완료
-
-* Entity 추가 (Actor)
-* 이벤트 함수 추가 (BeginPlay, Tick, Render)
-* Level 추가 (가상공간에 배치된 물체(Actor) 관리 객체)
+*Todo: 24일 할 것
+-RTTI적용
+-Engine 싱글톤(Singleton) 구현
 */
 
 
@@ -49,6 +45,9 @@ public:
 	//종료 함수
 	void Quit();
 
+	//싱글톤 접근 함수
+	static Engine& Get();
+
 private: //변수형 
 
 	
@@ -70,4 +69,8 @@ private: //함수인데 외부 공개 안할거
 
 	//메인 레벨
 	Level* mainLevel = nullptr;
+
+	//싱글톤 변수
+	static Engine* instance;
+
 };

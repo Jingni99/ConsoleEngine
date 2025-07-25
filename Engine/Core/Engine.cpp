@@ -1,15 +1,29 @@
 #include "Engine.h"
 #include<iostream>
 #include"Level/Level.h"
+#include <Windows.h>
 
 
 //2가지 기능 추가
 // 윈도우즈
 //단순 입력 처리 (키보드).
 //타이머(시간 계산).
+Engine* Engine::instance = nullptr;
 
 Engine::Engine()
 {
+    instance = this;
+
+   //콘솔 커서 끄기
+    CONSOLE_CURSOR_INFO info;
+    info.bVisible = false;
+    info.dwSize = 1;
+    SetConsoleCursorInfo(
+        GetStdHandle(STD_OUTPUT_HANDLE), &info
+    );
+
+    //모든 텍스트 색상이 바뀜
+    //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
 }
 
 Engine::~Engine()
@@ -82,9 +96,13 @@ void Engine::Run()
             }
         }
 
-
     }
-
+    // 엔진 차원에서의 정리
+    //텍스트 섹상 돌려놓기
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), 
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
+    );
 }
 
 void Engine::AddLevel(Level* newLevel)
@@ -115,6 +133,11 @@ void Engine::Quit()
 {
     //종료 플래그 설정
     isQuit = true;
+}
+
+Engine& Engine::Get()
+{
+    return *instance;
 }
 
 void Engine::ProcessInput()
@@ -168,15 +191,20 @@ void Engine::Tick(float deltaTime)
      }
 
 
-    if(GetKeyDown(VK_ESCAPE))
+ /*   if(GetKeyDown(VK_ESCAPE))
      {
           Quit();
-     }
+     }*/
 
 }
 
 void Engine::Render() //콘솔에서는 렌더링이 std::cout 밖에 없음.goood
 {
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
+    );
+
     if (mainLevel) 
     {
         mainLevel->Render();
